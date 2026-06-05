@@ -1,0 +1,48 @@
+{
+  "name": "agent-handoff-optimizer",
+  "version": "1.0.0",
+  "description": "A specialized tool for optimizing and debugging agent handoffs in multi-agent systems",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "aho": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts src/cli.ts --format cjs",
+    "dev": "tsup src/index.ts src/cli.ts --format cjs --watch",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "agent",
+    "handoff",
+    "optimization",
+    "multi-agent",
+    "performance",
+    "debugging",
+    "ai-agents",
+    "coordination"
+  ],
+  "author": "Sulthonzh",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "@vitest/coverage-v8": "^0.34.0",
+    "eslint": "^8.45.0",
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^0.34.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
