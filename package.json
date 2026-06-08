@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup src/index.ts src/cli.ts --format cjs",
     "dev": "tsup src/index.ts src/cli.ts --format cjs --watch",
-    "test": "vitest",
+    "test": "node test.mjs",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src tests --ext .ts",
     "lint:fix": "eslint src tests --ext .ts --fix",
@@ -39,6 +39,7 @@
     "@vitest/coverage-v8": "^4.0.0",
     "eslint": "^8.45.0",
     "tsup": "^7.0.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.0.0",
     "vitest": "^4.0.0"
   },
