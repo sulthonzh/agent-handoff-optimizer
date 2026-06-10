@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { HandoffTracker, HandoffOptimizer, AgentHandoffManager } from './dist/index.js';
+import { HandoffTracker, HandoffOptimizer, AgentHandoffManager, HandoffVisualizer } from './dist/index.js';
 
 const baseConfig = () => ({
   outputFormat: 'table', verbose: false, trackLatency: true, analyzePerformance: true,
@@ -242,4 +242,54 @@ describe('AgentHandoffManager', () => {
 });
 
 import { run } from 'node:test';
+
+// --- HandoffVisualizer.toMarkdown ---
+describe('HandoffVisualizer.toMarkdown', () => {
+  const viz = new HandoffVisualizer(baseConfig());
+
+  it('renders system overview with metrics', () => {
+    const md = viz.toMarkdown(makeMockData());
+    assert.ok(md.includes('# Agent Handoff Report'));
+    assert.ok(md.includes('## System Overview'));
+    assert.ok(md.includes('Avg Latency'));
+    assert.ok(md.includes('750.0ms'));
+    assert.ok(md.includes('Reliability'));
+  });
+
+  it('renders agent breakdown table', () => {
+    const md = viz.toMarkdown(makeMockData());
+    assert.ok(md.includes('## Agent Breakdown'));
+    assert.ok(md.includes('agent1'));
+    assert.ok(md.includes('agent2'));
+  });
+
+  it('renders top handoff routes when handoff data exists', () => {
+    const data = makeMockData();
+    data.handoffMetrics = [
+      { id: 'h1', timestamp: Date.now(), fromAgent: 'agent1', toAgent: 'agent2', latency: 500, throughput: 10, reliability: 0.95, messageSize: 1024, status: 'success', strategy: 'direct' },
+      { id: 'h2', timestamp: Date.now(), fromAgent: 'agent1', toAgent: 'agent2', latency: 700, throughput: 10, reliability: 0.90, messageSize: 2048, status: 'success', strategy: 'cached' },
+      { id: 'h3', timestamp: Date.now(), fromAgent: 'agent2', toAgent: 'agent1', latency: 300, throughput: 10, reliability: 0.99, messageSize: 512, status: 'success', strategy: 'direct' },
+    ];
+    const md = viz.toMarkdown(data);
+    assert.ok(md.includes('## Top Handoff Routes'));
+    assert.ok(md.includes('agent1 → agent2'));
+    assert.ok(md.includes('2')); // count for that route
+  });
+
+  it('renders bottlenecks when present', () => {
+    const data = makeMockData();
+    data.bottlenecks = [{ id: 'b1', type: 'latency', severity: 8, description: 'High latency detected', affectedAgents: ['agent1', 'agent2'], metrics: { current: 1200, threshold: 500, trend: 'degrading' }, estimatedImpact: { performance: 30, cost: 20 }, recommendations: ['Add caching'] }];
+    const md = viz.toMarkdown(data);
+    assert.ok(md.includes('⚠️ Bottlenecks'));
+    assert.ok(md.includes('High latency detected'));
+    assert.ok(md.includes('8/10'));
+  });
+
+  it('omits empty sections', () => {
+    const md = viz.toMarkdown(makeMockData());
+    assert.ok(!md.includes('## Top Handoff Routes'));
+    assert.ok(!md.includes('⚠️ Bottlenecks'));
+  });
+});
+
 run();
