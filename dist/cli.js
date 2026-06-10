@@ -1499,6 +1499,69 @@ var HandoffVisualizer = class extends import_events4.EventEmitter {
   getAvailableTypes() {
     return ["flowchart", "heatmap", "dashboard", "network", "timeline", "treemap"];
   }
+  /**
+   * Generate a human-readable markdown report from tracking data.
+   * Great for pasting into PRs, Slack, or Notion.
+   */
+  toMarkdown(data) {
+    const lines = [];
+    const s = data.systemMetrics;
+    const agents = Object.entries(data.agentMetrics);
+    const handoffs = data.handoffMetrics;
+    const duration = ((data.timeWindow.end - data.timeWindow.start) / 1e3).toFixed(1);
+    lines.push("# Agent Handoff Report");
+    lines.push("");
+    lines.push(`**Duration:** ${duration}s | **Agents:** ${s.totalAgents} | **Handoffs:** ${s.totalHandoffs}`);
+    lines.push("");
+    lines.push("## System Overview");
+    lines.push("");
+    lines.push("| Metric | Value |");
+    lines.push("|--------|-------|");
+    lines.push(`| Avg Latency | ${s.averageLatency.toFixed(1)}ms |`);
+    lines.push(`| Throughput | ${s.throughput.toFixed(1)} req/s |`);
+    lines.push(`| Reliability | ${(s.reliability * 100).toFixed(1)}% |`);
+    lines.push(`| Memory | ${s.memoryUsage.toFixed(1)}% |`);
+    lines.push(`| CPU | ${s.cpuUsage.toFixed(1)}% |`);
+    lines.push("");
+    if (agents.length > 0) {
+      lines.push("## Agent Breakdown");
+      lines.push("");
+      lines.push("| Agent | Handoffs | Avg Latency | Reliability | Error Rate |");
+      lines.push("|-------|----------|-------------|-------------|------------|");
+      for (const [name, m] of agents) {
+        lines.push(`| ${name} | ${m.totalHandoffs} | ${m.averageLatency.toFixed(0)}ms | ${(m.reliability * 100).toFixed(1)}% | ${(m.errorRate * 100).toFixed(1)}% |`);
+      }
+      lines.push("");
+    }
+    if (handoffs.length > 0) {
+      const routes = {};
+      for (const h of handoffs) {
+        const key = h.fromAgent + " \u2192 " + h.toAgent;
+        if (!routes[key])
+          routes[key] = { count: 0, totalLatency: 0 };
+        routes[key].count++;
+        routes[key].totalLatency += h.latency;
+      }
+      const sorted = Object.entries(routes).sort((a, b) => b[1].count - a[1].count).slice(0, 10);
+      lines.push("## Top Handoff Routes");
+      lines.push("");
+      lines.push("| Route | Count | Avg Latency |");
+      lines.push("|-------|-------|-------------|");
+      for (const [route, r] of sorted) {
+        lines.push("| " + route + " | " + r.count + " | " + (r.totalLatency / r.count).toFixed(0) + "ms |");
+      }
+      lines.push("");
+    }
+    if (data.bottlenecks.length > 0) {
+      lines.push("## \u26A0\uFE0F Bottlenecks");
+      lines.push("");
+      for (const b of data.bottlenecks) {
+        lines.push("- **" + b.description + "** (severity: " + b.severity + "/10) \u2014 affects: " + b.affectedAgents.join(", "));
+      }
+      lines.push("");
+    }
+    return lines.join("\n");
+  }
 };
 
 // src/core/AgentHandoffManager.ts
