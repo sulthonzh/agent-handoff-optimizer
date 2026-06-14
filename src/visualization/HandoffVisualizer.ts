@@ -54,11 +54,9 @@ export class HandoffVisualizer extends EventEmitter {
     const agents = Object.keys(trackingData.agentMetrics);
     const handoffs = trackingData.handoffMetrics;
 
-    // Create heatmap matrix
     const heatmapMatrix: Record<string, Record<string, number>> = {};
     const agentsSorted = agents.sort();
 
-    // Initialize matrix
     agentsSorted.forEach(fromAgent => {
       heatmapMatrix[fromAgent] = {};
       agentsSorted.forEach(toAgent => {
@@ -66,16 +64,13 @@ export class HandoffVisualizer extends EventEmitter {
       });
     });
 
-    // Fill matrix with handoff data
     handoffs.forEach(handoff => {
       const from = handoff.fromAgent;
       const to = handoff.toAgent;
       
-      // Use latency as the heatmap value
       heatmapMatrix[from][to] = handoff.latency;
     });
 
-    // Generate heatmap data
     return {
       type: 'heatmap',
       matrix: heatmapMatrix,
@@ -222,9 +217,6 @@ export class HandoffVisualizer extends EventEmitter {
     };
   }
 
-  /**
-   * Generate heatmap analysis
-   */
   private generateHeatmapAnalysis(trackingData: PerformanceMetrics): any {
     const handoffs = trackingData.handoffMetrics;
     
@@ -234,7 +226,6 @@ export class HandoffVisualizer extends EventEmitter {
       recommendations: []
     };
 
-    // Identify bottlenecks
     const avgLatencyByPair = this.calculateAverageLatencyByPair(handoffs);
     Object.entries(avgLatencyByPair).forEach(([pair, latency]) => {
       if (latency > 1000) {
@@ -246,11 +237,9 @@ export class HandoffVisualizer extends EventEmitter {
       }
     });
 
-    // Identify patterns
     const patterns = this.identifyHandoffPatterns(handoffs);
     analysis.patterns = patterns;
 
-    // Generate recommendations
     if (analysis.bottlenecks.length > 0) {
       analysis.recommendations.push(
         'Consider implementing caching for high-latency handoffs',
@@ -261,17 +250,11 @@ export class HandoffVisualizer extends EventEmitter {
     return analysis;
   }
 
-  /**
-   * Calculate network density
-   */
   private calculateNetworkDensity(nodes: number, links: number): number {
     const maxLinks = nodes * (nodes - 1) / 2;
     return maxLinks > 0 ? links / maxLinks : 0;
   }
 
-  /**
-   * Calculate average latency by agent pair
-   */
   private calculateAverageLatencyByPair(handoffs: any[]): Record<string, number> {
     const pairLatencies: Record<string, number[]> = {};
     
@@ -291,13 +274,9 @@ export class HandoffVisualizer extends EventEmitter {
     return result;
   }
 
-  /**
-   * Identify handoff patterns
-   */
   private identifyHandoffPatterns(handoffs: any[]): any[] {
     const patterns = [];
     
-    // Find frequent handoff routes
     const routes = handoffs.map(h => `${h.fromAgent}→${h.toAgent}`);
     const routeCounts: Record<string, number> = {};
     
@@ -305,7 +284,6 @@ export class HandoffVisualizer extends EventEmitter {
       routeCounts[route] = (routeCounts[route] || 0) + 1;
     });
 
-    // Sort by frequency
     const sortedRoutes = Object.entries(routeCounts)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 5);
@@ -319,7 +297,6 @@ export class HandoffVisualizer extends EventEmitter {
       });
     });
 
-    // Find high-latency handoffs
     const highLatencyHandoffs = handoffs.filter(h => h.latency > 1000);
     if (highLatencyHandoffs.length > 0) {
       patterns.push({
@@ -332,9 +309,6 @@ export class HandoffVisualizer extends EventEmitter {
     return patterns;
   }
 
-  /**
-   * Render visualization
-   */
   async render(
     trackingData: PerformanceMetrics,
     type: 'flowchart' | 'heatmap' | 'dashboard' | 'network' | 'timeline' | 'treemap'
@@ -357,9 +331,6 @@ export class HandoffVisualizer extends EventEmitter {
     }
   }
 
-  /**
-   * Get available visualization types
-   */
   getAvailableTypes(): string[] {
     return ['flowchart', 'heatmap', 'dashboard', 'network', 'timeline', 'treemap'];
   }

@@ -3,7 +3,7 @@
  */
 
 import { Config } from '../types/Config';
-import { PerformanceMetrics, HandoffMetrics } from '../types/HandoffMetrics';
+import { PerformanceMetrics } from '../types/HandoffMetrics';
 import { OptimizationSuggestion } from '../types/OptimizationSuggestion';
 import { EventEmitter } from 'events';
 
@@ -57,10 +57,8 @@ export class HandoffOptimizer extends EventEmitter {
     };
   }> {
     try {
-      // Generate optimization suggestions
       const suggestions = await this.generateOptimizationSuggestions(trackingData, options);
       
-      // Create optimization plan
       const plan: OptimizationPlan = {
         id: `plan-${Date.now()}`,
         name: `Handoff Optimization Plan - ${new Date().toLocaleDateString()}`,
@@ -72,20 +70,16 @@ export class HandoffOptimizer extends EventEmitter {
         dependencies: this.identifyDependencies(suggestions)
       };
 
-      // Calculate expected improvements
       const expectedImprovements = this.calculateExpectedImprovements(suggestions);
 
-      // Cache results
       this.cache.set(trackingData.timeWindow.start.toString(), {
         suggestions,
         plan,
         expectedImprovements
       });
 
-      // Add to history
       this.optimizationHistory.push(plan);
 
-      // Emit event
       this.emit('optimized', { suggestions, plan, expectedImprovements });
 
       return {
@@ -108,31 +102,26 @@ export class HandoffOptimizer extends EventEmitter {
   ): Promise<OptimizationSuggestion[]> {
     const suggestions: OptimizationSuggestion[] = [];
 
-    // Generate latency optimization suggestions
     if (!options.target || options.target === 'latency') {
       const latencySuggestions = this.generateLatencyOptimizationSuggestions(trackingData);
       suggestions.push(...latencySuggestions);
     }
 
-    // Generate throughput optimization suggestions
     if (!options.target || options.target === 'throughput') {
       const throughputSuggestions = this.generateThroughputOptimizationSuggestions(trackingData);
       suggestions.push(...throughputSuggestions);
     }
 
-    // Generate reliability optimization suggestions
     if (!options.target || options.target === 'reliability') {
       const reliabilitySuggestions = this.generateReliabilityOptimizationSuggestions(trackingData);
       suggestions.push(...reliabilitySuggestions);
     }
 
-    // Generate cost optimization suggestions
     if (!options.target || options.target === 'cost') {
       const costSuggestions = this.generateCostOptimizationSuggestions(trackingData);
       suggestions.push(...costSuggestions);
     }
 
-    // Sort suggestions by priority
     return suggestions.sort((a, b) => b.priority - a.priority);
   }
 
@@ -399,9 +388,6 @@ export class HandoffOptimizer extends EventEmitter {
     return suggestions;
   }
 
-  /**
-   * Calculate total impact of all suggestions
-   */
   private calculateTotalImpact(suggestions: OptimizationSuggestion[]): {
     latency: number;
     throughput: number;
@@ -416,9 +402,6 @@ export class HandoffOptimizer extends EventEmitter {
     }), { latency: 0, throughput: 0, reliability: 0, cost: 0 });
   }
 
-  /**
-   * Determine implementation order for suggestions
-   */
   private determineImplementationOrder(suggestions: OptimizationSuggestion[]): string[] {
     // Sort by priority (highest first) and type (latency/throughput first)
     return suggestions
@@ -432,9 +415,6 @@ export class HandoffOptimizer extends EventEmitter {
       .map(s => s.id);
   }
 
-  /**
-   * Calculate estimated completion time
-   */
   private calculateEstimatedCompletion(suggestions: OptimizationSuggestion[]): Date {
     const totalDays = suggestions.reduce((sum, s) => {
       const days = parseInt(s.implementation.timeRequired.split('-')[0]);
@@ -447,9 +427,6 @@ export class HandoffOptimizer extends EventEmitter {
     return completionDate;
   }
 
-  /**
-   * Identify dependencies between suggestions
-   */
   private identifyDependencies(suggestions: OptimizationSuggestion[]): string[] {
     const dependencies: string[] = [];
 
@@ -466,9 +443,6 @@ export class HandoffOptimizer extends EventEmitter {
     return dependencies;
   }
 
-  /**
-   * Calculate expected improvements across all suggestions
-   */
   private calculateExpectedImprovements(
     suggestions: OptimizationSuggestion[]
   ): {
@@ -485,23 +459,14 @@ export class HandoffOptimizer extends EventEmitter {
     }), { latency: 0, throughput: 0, reliability: 0, cost: 0 });
   }
 
-  /**
-   * Get optimization history
-   */
   getOptimizationHistory(): OptimizationPlan[] {
     return [...this.optimizationHistory];
   }
 
-  /**
-   * Get cached optimization results
-   */
   getCachedOptimizationResults(): any[] {
     return Array.from(this.cache.values());
   }
 
-  /**
-   * Clear optimization cache
-   */
   clearCache(): void {
     this.cache.clear();
   }

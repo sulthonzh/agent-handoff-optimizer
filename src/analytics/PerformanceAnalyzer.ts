@@ -29,27 +29,16 @@ export class PerformanceAnalyzer extends EventEmitter {
   }> {
     console.log('🔬 Analyzing performance data...');
     
-    // Set baseline if not set
     if (!this.baselineMetrics) {
       this.baselineMetrics = this.calculateBaseline(trackingData);
     }
     
-    // Analyze overall performance
     const summary = this.analyzeOverallPerformance(trackingData);
-    
-    // Identify bottlenecks
     const bottlenecks = this.identifyBottlenecks(trackingData);
-    
-    // Analyze trends
     const trends = this.analyzeTrends(trackingData);
-    
-    // Generate recommendations
     const recommendations = this.generateRecommendations(bottlenecks, trends);
-    
-    // Identify optimization opportunities
     const optimizationOpportunities = this.identifyOptimizationOpportunities(trackingData);
     
-    // Cache analysis results
     this.cacheAnalysisResults({
       summary,
       bottlenecks,
@@ -75,9 +64,6 @@ export class PerformanceAnalyzer extends EventEmitter {
     };
   }
 
-  /**
-   * Analyze overall performance
-   */
   private analyzeOverallPerformance(trackingData: PerformanceMetrics): PerformanceSummary {
     const systemMetrics = trackingData.systemMetrics;
     const agentMetrics = trackingData.agentMetrics;
@@ -118,9 +104,6 @@ export class PerformanceAnalyzer extends EventEmitter {
     };
   }
 
-  /**
-   * Identify bottlenecks
-   */
   private identifyBottlenecks(trackingData: PerformanceMetrics): Bottleneck[] {
     const bottlenecks: Bottleneck[] = [];
     const systemMetrics = trackingData.systemMetrics;
@@ -228,9 +211,6 @@ export class PerformanceAnalyzer extends EventEmitter {
     return bottlenecks;
   }
 
-  /**
-   * Analyze trends
-   */
   private analyzeTrends(trackingData: PerformanceMetrics): TrendAnalysis {
     const systemMetrics = trackingData.systemMetrics;
     
@@ -248,13 +228,9 @@ export class PerformanceAnalyzer extends EventEmitter {
     };
   }
 
-  /**
-   * Generate recommendations
-   */
   private generateRecommendations(bottlenecks: Bottleneck[], trends: TrendAnalysis): string[] {
     const recommendations: string[] = [];
     
-    // Generate recommendations based on bottlenecks
     bottlenecks.forEach(bottleneck => {
       recommendations.push(
         `Priority ${bottleneck.severity}: ${bottleneck.description}. ` +
@@ -262,7 +238,6 @@ export class PerformanceAnalyzer extends EventEmitter {
       );
     });
     
-    // Generate recommendations based on trends
     if (trends.performanceTrends.latency.trend === 'degrading') {
       recommendations.push(
         'Latency is degrading - consider implementing optimization strategies'
@@ -275,7 +250,6 @@ export class PerformanceAnalyzer extends EventEmitter {
       );
     }
     
-    // Generate recommendations based on seasonal patterns
     if (trends.seasonalPatterns.length > 0) {
       recommendations.push(
         `Seasonal patterns detected: ${trends.seasonalPatterns.map(p => p.pattern).join(', ')}. ` +
@@ -283,7 +257,6 @@ export class PerformanceAnalyzer extends EventEmitter {
       );
     }
     
-    // Add general recommendations
     recommendations.push(
       'Set up automated alerts for performance thresholds',
       'Regular performance reviews and optimization cycles',
@@ -293,35 +266,20 @@ export class PerformanceAnalyzer extends EventEmitter {
     return recommendations;
   }
 
-  /**
-   * Identify optimization opportunities
-   */
   private identifyOptimizationOpportunities(trackingData: PerformanceMetrics): OptimizationSuggestion[] {
     const opportunities: OptimizationSuggestion[] = [];
     
-    // Analyze for caching opportunities
     opportunities.push(...this.identifyCachingOpportunities(trackingData));
-    
-    // Analyze for batching opportunities
     opportunities.push(...this.identifyBatchingOpportunities(trackingData));
-    
-    // Analyze for parallelization opportunities
     opportunities.push(...this.identifyParallelizationOpportunities(trackingData));
-    
-    // Analyze for stream processing opportunities
     opportunities.push(...this.identifyStreamProcessingOpportunities(trackingData));
     
-    // Sort by priority
     return opportunities.sort((a, b) => b.priority - a.priority);
   }
 
-  /**
-   * Identify caching opportunities
-   */
   private identifyCachingOpportunities(trackingData: PerformanceMetrics): OptimizationSuggestion[] {
     const opportunities: OptimizationSuggestion[] = [];
     
-    // Look for repeated handoffs with high latency
     const repeatedHandoffs = this.findRepeatedHandoffs(trackingData);
     
     if (repeatedHandoffs.length > 0) {
@@ -356,13 +314,9 @@ export class PerformanceAnalyzer extends EventEmitter {
     return opportunities;
   }
 
-  /**
-   * Identify batching opportunities
-   */
   private identifyBatchingOpportunities(trackingData: PerformanceMetrics): OptimizationSuggestion[] {
     const opportunities: OptimizationSuggestion[] = [];
     
-    // Look for small, frequent handoffs that could be batched
     const smallFrequentHandoffs = this.findSmallFrequentHandoffs(trackingData);
     
     if (smallFrequentHandoffs.length > 0) {
@@ -397,13 +351,9 @@ export class PerformanceAnalyzer extends EventEmitter {
     return opportunities;
   }
 
-  /**
-   * Identify parallelization opportunities
-   */
   private identifyParallelizationOpportunities(trackingData: PerformanceMetrics): OptimizationSuggestion[] {
     const opportunities: OptimizationSuggestion[] = [];
     
-    // Look for sequential handoffs that could be parallelized
     const sequentialHandoffs = this.findSequentialHandoffs(trackingData);
     
     if (sequentialHandoffs.length > 0) {
@@ -438,13 +388,9 @@ export class PerformanceAnalyzer extends EventEmitter {
     return opportunities;
   }
 
-  /**
-   * Identify stream processing opportunities
-   */
   private identifyStreamProcessingOpportunities(trackingData: PerformanceMetrics): OptimizationSuggestion[] {
     const opportunities: OptimizationSuggestion[] = [];
     
-    // Look for continuous patterns that could benefit from streaming
     const continuousPatterns = this.findContinuousPatterns(trackingData);
     
     if (continuousPatterns.length > 0) {
@@ -591,7 +537,6 @@ export class PerformanceAnalyzer extends EventEmitter {
   }
 
   private findRepeatedHandoffs(trackingData: PerformanceMetrics): Array<any> {
-    // Mock implementation - in real implementation, this would analyze actual data
     return [
       { pattern: 'agent1 -> agent2', frequency: 100 },
       { pattern: 'agent2 -> agent3', frequency: 80 }
@@ -599,7 +544,6 @@ export class PerformanceAnalyzer extends EventEmitter {
   }
 
   private findSmallFrequentHandoffs(trackingData: PerformanceMetrics): Array<any> {
-    // Mock implementation
     return [
       { size: 'small', frequency: 'high', count: 50 },
       { size: 'small', frequency: 'medium', count: 30 }
@@ -607,7 +551,6 @@ export class PerformanceAnalyzer extends EventEmitter {
   }
 
   private findSequentialHandoffs(trackingData: PerformanceMetrics): Array<any> {
-    // Mock implementation
     return [
       { sequence: 'a->b->c', latency: 300 },
       { sequence: 'd->e->f', latency: 450 }
@@ -615,7 +558,6 @@ export class PerformanceAnalyzer extends EventEmitter {
   }
 
   private findContinuousPatterns(trackingData: PerformanceMetrics): Array<any> {
-    // Mock implementation
     return [
       { pattern: 'continuous stream', duration: '5min' },
       { pattern: 'periodic bursts', frequency: '10min' }
@@ -659,7 +601,6 @@ export class PerformanceAnalyzer extends EventEmitter {
   }
 
   private identifySeasonalPatterns(trackingData: PerformanceMetrics): Array<any> {
-    // Mock implementation
     return [
       { pattern: 'morning peak', time: '9-11 AM', impact: 0.3 },
       { pattern: 'afternoon dip', time: '2-4 PM', impact: -0.2 }
@@ -700,7 +641,6 @@ export class PerformanceAnalyzer extends EventEmitter {
     const cacheKey = `analysis-${Date.now()}`;
     this.analysisCache.set(cacheKey, results);
     
-    // Set TTL for cache
     setTimeout(() => {
       this.analysisCache.delete(cacheKey);
     }, this.config.cacheTTL);

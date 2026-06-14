@@ -2,8 +2,8 @@
  * Agent Handoff Manager - Central coordination for multi-agent systems
  */
 
-import { Config, HandoffStrategy } from '../types/Config';
-import { HandoffMetrics, PerformanceMetrics, AgentMetrics } from '../types/HandoffMetrics';
+import { Config } from '../types/Config';
+import { HandoffMetrics, PerformanceMetrics } from '../types/HandoffMetrics';
 import { HandoffResult } from '../types/HandoffResult';
 import { AgentDefinition, AgentHandoff, AgentDependency } from '../types/AgentConfig';
 import { HandoffTracker } from './HandoffTracker';
@@ -27,7 +27,6 @@ export class AgentHandoffManager extends EventEmitter {
     this.tracker = new HandoffTracker(config);
     this.optimizer = new HandoffOptimizer(config);
     
-    // Set up event listeners
     this.setupEventListeners();
   }
 
@@ -37,18 +36,14 @@ export class AgentHandoffManager extends EventEmitter {
   async registerAgent(agent: AgentDefinition): Promise<void> {
     console.log(`🤖 Registering agent: ${agent.name}`);
     
-    // Validate agent configuration
     this.validateAgent(agent);
     
-    // Store agent
     this.agents.set(agent.id, agent);
     
-    // Initialize dependencies
     if (!this.dependencies.has(agent.id)) {
       this.dependencies.set(agent.id, []);
     }
     
-    // Emit registration event
     this.emit('agentRegistered', agent);
     
     console.log(`✅ Agent ${agent.name} registered successfully`);
@@ -83,7 +78,6 @@ export class AgentHandoffManager extends EventEmitter {
   ): Promise<HandoffResult> {
     console.log(`🔄 Executing handoff: ${fromAgent} → ${toAgent}`);
     
-    // Validate agents exist
     if (!this.agents.has(fromAgent)) {
       throw new Error(`Source agent ${fromAgent} not found`);
     }
@@ -91,7 +85,6 @@ export class AgentHandoffManager extends EventEmitter {
       throw new Error(`Target agent ${toAgent} not found`);
     }
     
-    // Create handoff record
     const handoff: AgentHandoff = {
       id: `handoff-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       fromAgent,
@@ -109,32 +102,25 @@ export class AgentHandoffManager extends EventEmitter {
       }
     };
     
-    // Store handoff
     this.handoffs.set(handoff.id, handoff);
     this.activeHandoffs.add(handoff.id);
     
-    // Emit handoff started event
     this.emit('handoffStarted', handoff);
     
     try {
-      // Execute handoff with retry logic
       const result = await this.executeHandoffWithRetries(handoff, options.retries || 3);
       
-      // Store completed handoff
       this.completedHandoffs.set(handoff.id, result);
       this.activeHandoffs.delete(handoff.id);
       
-      // Record metrics
       this.recordHandoffMetrics(handoff, result);
       
-      // Emit completion event
       this.emit('handoffCompleted', { handoff, result });
       
       console.log(`✅ Handoff completed: ${fromAgent} → ${toAgent}`);
       return result;
       
     } catch (error) {
-      // Handle failed handoff
       const failedResult: HandoffResult = {
         id: handoff.id,
         timestamp: Date.now(),
@@ -169,7 +155,6 @@ export class AgentHandoffManager extends EventEmitter {
       this.completedHandoffs.set(handoff.id, failedResult);
       this.activeHandoffs.delete(handoff.id);
       
-      // Emit failure event
       this.emit('handoffFailed', { handoff, error });
       
       console.log(`❌ Handoff failed: ${fromAgent} → ${toAgent}`);
@@ -177,9 +162,6 @@ export class AgentHandoffManager extends EventEmitter {
     }
   }
 
-  /**
-   * Execute handoff with retry logic
-   */
   private async executeHandoffWithRetries(
     handoff: AgentHandoff,
     maxRetries: number
@@ -188,11 +170,9 @@ export class AgentHandoffManager extends EventEmitter {
     
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        // Update handoff status
         handoff.status = 'in_progress';
         this.handoffs.set(handoff.id, handoff);
         
-        // Execute the handoff
         const result = await this.performHandoff(handoff);
         
         return result;
@@ -213,25 +193,19 @@ export class AgentHandoffManager extends EventEmitter {
     throw lastError!;
   }
 
-  /**
-   * Perform the actual handoff
-   */
   private async performHandoff(handoff: AgentHandoff): Promise<HandoffResult> {
     const startTime = Date.now();
     const fromAgent = this.agents.get(handoff.fromAgent)!;
     const toAgent = this.agents.get(handoff.toAgent)!;
     
-    // Simulate handoff execution
     await this.delay(Math.random() * 200 + 50); // Simulate processing time
     
     const endTime = Date.now();
     const latency = endTime - startTime;
     
-    // Simulate success/failure
     const success = Math.random() > 0.1; // 90% success rate
     
     if (success) {
-      // Simulate processing
       await this.delay(Math.random() * 100);
       
       const result: HandoffResult = {
@@ -271,9 +245,6 @@ export class AgentHandoffManager extends EventEmitter {
     }
   }
 
-  /**
-   * Execute a sequence of handoffs
-   */
   async executeHandoffSequence(
     sequence: Array<{
       from: string;
@@ -292,7 +263,6 @@ export class AgentHandoffManager extends EventEmitter {
     const results: HandoffResult[] = [];
     
     if (options.parallel && options.maxConcurrency) {
-      // Execute in parallel with limited concurrency
       const chunks = this.chunkArray(sequence, options.maxConcurrency);
       
       for (const chunk of chunks) {
@@ -309,7 +279,6 @@ export class AgentHandoffManager extends EventEmitter {
         results.push(...chunkResults);
       }
     } else if (options.parallel) {
-      // Execute in parallel unlimited
       const promises = sequence.map(async (handoff) => {
         return this.executeHandoff(
           handoff.from,
@@ -321,7 +290,6 @@ export class AgentHandoffManager extends EventEmitter {
       
       results.push(...await Promise.all(promises));
     } else {
-      // Execute sequentially
       for (const handoff of sequence) {
         const result = await this.executeHandoff(
           handoff.from,
@@ -337,9 +305,6 @@ export class AgentHandoffManager extends EventEmitter {
     return results;
   }
 
-  /**
-   * Add dependency between agents
-   */
   addDependency(fromAgent: string, toAgent: string, dependency: AgentDependency): void {
     if (!this.dependencies.has(fromAgent)) {
       this.dependencies.set(fromAgent, []);
@@ -355,44 +320,26 @@ export class AgentHandoffManager extends EventEmitter {
     console.log(`🔗 Added dependency: ${fromAgent} → ${toAgent}`);
   }
 
-  /**
-   * Get agent dependencies
-   */
   getDependencies(agent: string): AgentDependency[] {
     return this.dependencies.get(agent) || [];
   }
 
-  /**
-   * Get all agents
-   */
   getAgents(): AgentDefinition[] {
     return Array.from(this.agents.values());
   }
 
-  /**
-   * Get agent by ID
-   */
   getAgent(agentId: string): AgentDefinition | undefined {
     return this.agents.get(agentId);
   }
 
-  /**
-   * Get active handoffs
-   */
   getActiveHandoffs(): AgentHandoff[] {
     return Array.from(this.activeHandoffs).map(id => this.handoffs.get(id)!);
   }
 
-  /**
-   * Get completed handoffs
-   */
   getCompletedHandoffs(): HandoffResult[] {
     return Array.from(this.completedHandoffs.values());
   }
 
-  /**
-   * Get performance metrics
-   */
   async getPerformanceMetrics(): Promise<PerformanceMetrics> {
     const trackingData = await this.tracker.getResults();
     this.performanceHistory.push(trackingData);
@@ -400,9 +347,6 @@ export class AgentHandoffManager extends EventEmitter {
     return trackingData;
   }
 
-  /**
-   * Optimize handoff performance
-   */
   async optimizeHandoffs(): Promise<any> {
     const trackingData = await this.getPerformanceMetrics();
     const optimization = await this.optimizer.optimize(trackingData);
@@ -411,32 +355,20 @@ export class AgentHandoffManager extends EventEmitter {
     return optimization;
   }
 
-  /**
-   * Start tracking
-   */
   async startTracking(duration: number = 60): Promise<void> {
     console.log('🔍 Starting handoff tracking...');
     await this.tracker.trackAll(duration);
   }
 
-  /**
-   * Stop tracking
-   */
   async stopTracking(): Promise<void> {
     console.log('🛑 Stopping handoff tracking...');
     await this.tracker.stopTracking();
   }
 
-  /**
-   * Get tracking results
-   */
   async getTrackingResults(): Promise<PerformanceMetrics> {
     return await this.tracker.getResults();
   }
 
-  /**
-   * Get system status
-   */
   getSystemStatus(): {
     agents: number;
     activeHandoffs: number;
@@ -453,9 +385,6 @@ export class AgentHandoffManager extends EventEmitter {
     };
   }
 
-  /**
-   * Validate agent configuration
-   */
   private validateAgent(agent: AgentDefinition): void {
     if (!agent.id || !agent.name) {
       throw new Error('Agent must have id and name');
@@ -474,9 +403,6 @@ export class AgentHandoffManager extends EventEmitter {
     }
   }
 
-  /**
-   * Record handoff metrics
-   */
   private recordHandoffMetrics(handoff: AgentHandoff, result: HandoffResult): void {
     const metrics: HandoffMetrics = {
       id: handoff.id,
@@ -493,15 +419,10 @@ export class AgentHandoffManager extends EventEmitter {
       metadata: result.metadata
     };
     
-    // Record metrics in tracker
     (this.tracker as any).recordMetrics(metrics);
   }
 
-  /**
-   * Set up event listeners
-   */
   private setupEventListeners(): void {
-    // Forward tracker events
     this.tracker.on('metrics', (metrics) => {
       this.emit('metrics', metrics);
     });
@@ -518,7 +439,6 @@ export class AgentHandoffManager extends EventEmitter {
       this.emit('trackingComplete', results);
     });
     
-    // Forward optimizer events
     this.optimizer.on('optimizationComplete', (results) => {
       this.emit('optimizationComplete', results);
     });
@@ -528,9 +448,6 @@ export class AgentHandoffManager extends EventEmitter {
     });
   }
 
-  /**
-   * Utility methods
-   */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
