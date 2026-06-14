@@ -26,7 +26,6 @@ export { AgentRegistry } from './types/AgentConfig';
 export { HandoffResult } from './types/HandoffResult';
 export { OptimizationSuggestion } from './types/OptimizationSuggestion';
 
-// Re-export all agent config types
 export {
   AgentDefinition,
   AgentCapability,
