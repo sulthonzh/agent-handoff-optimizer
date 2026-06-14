@@ -25,7 +25,6 @@ program
   .description('Agent Handoff Optimizer - Optimize and debug agent handoffs in multi-agent systems')
   .version('1.0.0');
 
-// Track command
 program
   .command('track')
   .description('Track handoffs in multi-agent systems')
@@ -62,7 +61,6 @@ program
       console.log(chalk.green('✅ Tracking started successfully'));
       console.log(`📊 Tracking agent handoffs for ${duration} seconds`);
 
-      // Wait for tracking to complete
       await new Promise(resolve => setTimeout(resolve, duration * 1000));
 
       const metrics = tracker.getPerformanceMetrics();
@@ -85,7 +83,6 @@ program
     }
   });
 
-// Analyze command
 program
   .command('analyze')
   .description('Analyze performance and generate recommendations')
@@ -117,7 +114,6 @@ program
         }
         trackingData = JSON.parse(readFileSync(options.input, 'utf-8'));
       } else {
-        // Load recent tracking data
         const tracker = new HandoffTracker(config);
         trackingData = await tracker.getPerformanceMetrics();
       }
@@ -151,7 +147,6 @@ program
     }
   });
 
-// Optimize command
 program
   .command('optimize')
   .description('Generate optimization suggestions')
@@ -185,7 +180,6 @@ program
         }
         trackingData = JSON.parse(readFileSync(options.input, 'utf-8'));
       } else {
-        // Load recent tracking data
         const tracker = new HandoffTracker(config);
         trackingData = await tracker.getPerformanceMetrics();
       }
@@ -231,7 +225,6 @@ program
     }
   });
 
-// Visualize command
 program
   .command('visualize')
   .description('Create visualizations of handoff flows')
@@ -263,7 +256,6 @@ program
         }
         trackingData = JSON.parse(readFileSync(options.input, 'utf-8'));
       } else {
-        // Load recent tracking data
         const tracker = new HandoffTracker(config);
         trackingData = await tracker.getPerformanceMetrics();
       }
@@ -288,7 +280,6 @@ program
     }
   });
 
-// Config command
 program
   .command('config')
   .description('Manage configuration settings')
@@ -346,7 +337,6 @@ program
     }
   });
 
-// Debug command
 program
   .command('debug')
   .description('Debug information and system status')

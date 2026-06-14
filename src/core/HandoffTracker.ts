@@ -3,9 +3,7 @@
  */
 
 import { Config, AgentConfig } from '../types/Config';
-import { HandoffMetrics, HandoffStats, PerformanceMetrics } from '../types/HandoffMetrics';
-import { HandoffResult } from '../types/HandoffResult';
-import { AgentHandoff } from '../types/AgentConfig';
+import { PerformanceMetrics } from '../types/HandoffMetrics';
 import { EventEmitter } from 'events';
 
 export class HandoffTracker extends EventEmitter {
@@ -32,12 +30,10 @@ export class HandoffTracker extends EventEmitter {
     this.isTracking = true;
     this.startTime = Date.now();
     
-    // Monitor agent performance
     const agentMonitor = this.createAgentMonitor(agentName, agentConfig);
 
     this.intervals.push(agentMonitor);
 
-    // Stop tracking after duration
     setTimeout(() => {
       this.stopTracking();
     }, duration * 1000);
@@ -53,11 +49,9 @@ export class HandoffTracker extends EventEmitter {
 
     this.isTracking = false;
     
-    // Clear all intervals
     this.intervals.forEach(interval => clearInterval(interval));
     this.intervals = [];
 
-    // Calculate final metrics
     const finalMetrics = this.calculateFinalMetrics();
     
     this.emit('trackingStopped', finalMetrics);
@@ -65,16 +59,10 @@ export class HandoffTracker extends EventEmitter {
     return finalMetrics;
   }
 
-  /**
-   * Check if currently tracking
-   */
   isCurrentlyTracking(): boolean {
     return this.isTracking;
   }
 
-  /**
-   * Get performance metrics
-   */
   getPerformanceMetrics(): PerformanceMetrics {
     return {
       timeWindow: {
@@ -96,11 +84,7 @@ export class HandoffTracker extends EventEmitter {
     };
   }
 
-  /**
-   * Collect agent metrics
-   */
   private collectAgentMetrics(agentName: string, agentConfig: AgentConfig): PerformanceMetrics {
-    // Simulate collecting metrics for specific agent
     return {
       timeWindow: {
         start: Date.now() - 60000,
@@ -121,9 +105,6 @@ export class HandoffTracker extends EventEmitter {
     };
   }
 
-  /**
-   * Record metrics
-   */
   private recordMetrics(metrics: PerformanceMetrics): void {
     this.collectedData.push(metrics);
     this.handoffCount += metrics.systemMetrics.totalHandoffs;
@@ -131,9 +112,6 @@ export class HandoffTracker extends EventEmitter {
     this.emit('metricsCollected', metrics);
   }
 
-  /**
-   * Create agent monitor
-   */
   private createAgentMonitor(agentName: string, agentConfig: AgentConfig): NodeJS.Timeout {
     const monitor = setInterval(() => {
       const metrics = this.collectAgentMetrics(agentName, agentConfig);
@@ -143,9 +121,6 @@ export class HandoffTracker extends EventEmitter {
     return monitor;
   }
 
-  /**
-   * Calculate average latency
-   */
   private calculateAverageLatency(): number {
     if (this.collectedData.length === 0) return 0;
     
@@ -154,9 +129,6 @@ export class HandoffTracker extends EventEmitter {
     return totalLatency / this.collectedData.length;
   }
 
-  /**
-   * Calculate throughput
-   */
   private calculateThroughput(): number {
     if (this.collectedData.length === 0) return 0;
     
@@ -165,9 +137,6 @@ export class HandoffTracker extends EventEmitter {
     return totalThroughput / this.collectedData.length;
   }
 
-  /**
-   * Calculate reliability
-   */
   private calculateReliability(): number {
     if (this.collectedData.length === 0) return 0;
     
@@ -176,23 +145,14 @@ export class HandoffTracker extends EventEmitter {
     return totalReliability / this.collectedData.length;
   }
 
-  /**
-   * Get system memory usage
-   */
   private getSystemMemoryUsage(): number {
     return Math.random() * 100;
   }
 
-  /**
-   * Get system CPU usage
-   */
   private getSystemCpuUsage(): number {
     return Math.random() * 100;
   }
 
-  /**
-   * Identify bottlenecks
-   */
   private identifyBottlenecks(): any[] {
     const bottlenecks = [];
     
@@ -222,9 +182,6 @@ export class HandoffTracker extends EventEmitter {
     return bottlenecks;
   }
 
-  /**
-   * Calculate final metrics
-   */
   private calculateFinalMetrics(): PerformanceMetrics {
     return {
       timeWindow: {
