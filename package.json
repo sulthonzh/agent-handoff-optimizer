@@ -44,6 +44,19 @@
     "vitest": "^4.0.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sulthonzh/agent-handoff-optimizer.git"
+  },
+  "homepage": "https://github.com/sulthonzh/agent-handoff-optimizer#readme",
+  "bugs": {
+    "url": "https://github.com/sulthonzh/agent-handoff-optimizer/issues"
   }
 }
