@@ -16,6 +16,9 @@
     "lint:fix": "eslint src tests --ext .ts --fix",
     "prepare": "npm run build"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "agent",
     "handoff",

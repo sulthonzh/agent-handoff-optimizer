@@ -94,9 +94,7 @@ export class HandoffVisualizer extends EventEmitter {
       name: agent,
       latency: trackingData.agentMetrics[agent].averageLatency,
       throughput: trackingData.agentMetrics[agent].throughput,
-      reliability: trackingData.agentMetrics[agent].reliability * 100,
-      memoryUsage: trackingData.agentMetrics[agent].memoryUsage,
-      cpuUsage: trackingData.agentMetrics[agent].cpuUsage
+      reliability: trackingData.agentMetrics[agent].reliability * 100
     }));
 
     return {
@@ -220,7 +218,11 @@ export class HandoffVisualizer extends EventEmitter {
   private generateHeatmapAnalysis(trackingData: PerformanceMetrics): any {
     const handoffs = trackingData.handoffMetrics;
     
-    const analysis = {
+    const analysis: {
+      bottlenecks: Array<{ pair: string; latency: number; severity: string }>;
+      patterns: any[];
+      recommendations: string[];
+    } = {
       bottlenecks: [],
       patterns: [],
       recommendations: []
